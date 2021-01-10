@@ -30,12 +30,14 @@ if (!is.null(sessionInfo()$otherPkgs)) {
    
 }
 
-# Load pacman into memory, installing as needed
-my_repo <- 'http://cran.r-project.org'
-if (!require("pacman")) {install.packages("pacman", repos = my_repo)}
-
-# Load the other packages, installing as needed.
-pacman::p_load(dplyr, ggplot2, knitr, Hmisc)
+# Load all packages 
+# Assuming all packages were previously installed 
+# Loading packages that are not needed 
+library(ggplot2)
+library(Hmisc)
+library(dplyr)
+library(knitr)
+library(lubridate)
 
 ```
 
@@ -180,14 +182,11 @@ kable(facility_ec)
 
 ```{r hist.in.tidyverse, warning=FALSE, message=FALSE}
 #-----hist in tidyverse---------
+# load packages in random places 
+library(ggplot2)
 
 # histogram with density base plot
-p <- ggplot(data=DEMS, aes(ecdata, na.rm=TRUE)) + 
-  geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth=20) + 
-  geom_density(alpha=.2, fill="red") + 
-  labs(x = "REC (ug/m3)") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .1))) +
-  theme_classic()
+p <- ggplot(data=DEMS, aes(ecdata, na.rm=TRUE)) + geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth=20) + geom_density(alpha=.2, fill="red") + labs(x = "REC (ug/m3)") +         scale_y_continuous(expand = expand_scale(mult = c(0, .1))) + theme_classic()
 
 p
 ```
@@ -200,10 +199,9 @@ p
 # of the values are equal to zero. 
 # Note 2: with facets, you see facility D21 has no `nodata`
 ggplot(data = DEMS, aes(nodata, ecdata, color = u_s)) +
-    geom_point() +
-    facet_wrap(~ facilityno, nrow = 2, scales = "free") + 
-    geom_smooth(se = FALSE) +
-    labs(
+geom_point() +
+facet_wrap(~ facilityno, nrow = 2, scales = "free") 
++  geom_smooth(se = FALSE) +  labs(
     title = "Scatterplot of the DEMS NO (ppm) vs. REC (ug/m3) data \nby facility, colored by measurement location",
     x = "NO (ppm)",
     y = "REC (ug/m3)",
@@ -212,6 +210,8 @@ ggplot(data = DEMS, aes(nodata, ecdata, color = u_s)) +
   scale_color_brewer(palette = "Dark2") +
   theme_bw()
     
+
+# Not following + at begining of each attribute 
 ```
 
 # Session Information, Code, and Functions
