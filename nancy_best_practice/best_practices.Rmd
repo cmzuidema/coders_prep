@@ -35,7 +35,8 @@ my_repo <- 'http://cran.r-project.org'
 if (!require("pacman")) {install.packages("pacman", repos = my_repo)}
 
 # Load the other packages, installing as needed.
-pacman::p_load(dplyr, ggplot2, knitr, Hmisc)
+pacman::p_load(dplyr, ggplot2, knitr, Hmisc, tidyr, purrr, broom)
+
 
 ```
 
@@ -175,6 +176,35 @@ facility_ec
 # And here is the same result printed using kable
 kable(facility_ec)
 ```
+
+# Data Inference 
+
+```{r regression.modeling.tidy}
+no2_mods <- DEMS %>% 
+  
+  # group by facility
+  group_by(facilityid) %>%
+  
+  # sum missing & filter out facilities with all missing data
+  mutate(N = sum(!is.na(no2data))) %>% 
+  filter(N != 0) %>% 
+  
+  # nest the tibble
+  nest() %>% 
+  
+  # run regression model for each group, clean up with `tidy()`
+  mutate(model = map(data, ~lm(ecdata ~ no2data, data = .x)), 
+         tidied = map(model, tidy) 
+         ) %>% 
+  
+  # unnest
+  unnest(tidied) %>% 
+  
+  # filter to just NO2, our term of interest
+  filter(term == "no2data")
+
+```
+
 
 ## Data Visualization 
 

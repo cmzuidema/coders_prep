@@ -1,5 +1,5 @@
 ---
-title: "Best Practices"
+title: "Worst Practices"
 subtitle: "Using the Diesel Exhaust in Miners Study (DEMS) Data"
 author: "Nancy Carmona"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -30,37 +30,26 @@ if (!is.null(sessionInfo()$otherPkgs)) {
    
 }
 
-# Load all packages 
-# Assuming all packages were previously installed 
-# Loading packages that are not needed 
+# Load packages
 library(ggplot2)
 library(Hmisc)
 library(dplyr)
 library(knitr)
 library(lubridate)
 
-```
-
-```{r set.file.paths}
-#-----set file paths----
-
-# create a variable for the project path
-#project_path <- getwd()
-
-# create a variable for the data path
-#data_path <- file.path(project_path, "data")
-
-# create directory, if one does not already exist
-#dir.create(data_path, showWarnings = FALSE, recursive = TRUE)
+### Some of the worst practices this chunk ### 
+# Load all packages at once 
+# Assuming all packages were previously installed 
+# Loading packages that are not needed 
+# Not loading all packages that will be used in the analysis 
 
 ```
 
 ```{r read.data, eval=TRUE}
 #-----read data----
 
-# read data instead of loading from url 
+# read data 
   DEMS <- DEMSCombinedPersonal <- readRDS("~/Coders group/Prep/nancy_best_practice/data/DEMSCombinedPersonal.rds")
-
 
 # first, specify file name and path
 DEMS_file <- "DEMSCombinedPersonal.rds"
@@ -80,6 +69,13 @@ if (file.exists(DEMS_path)) {
 
 # remove temporary variables
 #rm(url, DEMS_file, DEMS_path)
+
+
+### Some of the worst practices this chunk ### 
+# not using file.path() to construct directories 
+# read data from absolute path instead of using directories 
+# plat-form specific paths (Mac vs. Windows)
+# large objects should be removed to reduce memory being used 
 
 ```
 
@@ -106,24 +102,25 @@ Check the data out at a high level.
 ```{r data.description.1}
 #-----data description 1---------- 
 
-# check class
-class(DEMS) 
+class(DEMS)  # check class
 
-# get dataframe dimensions
-dim(DEMS) 
+dim(DEMS) # get dataframe dimensions
 
-# dataframe varible names
-names(DEMS) 
+names(DEMS) # dataframe varible names
 
-# This gives us details on the type of each variable in the dataset
-sapply(DEMS, class) 
 
+sapply(DEMS, class) # This gives us details on the type of each variable in the dataset
+
+View(DEMS) 
 # view data
-View(DEMS)
- 
-### Data Wrangling 
-# large chunk instead separating data descriptions 
 
+ 
+### Some of the worst practices this chunk ### 
+# commenting at end of lines or after the code it refers to 
+# having a large chunk instead separating data descriptions 
+# combined "Data Wranging" and "Data Exploration" 
+# adding comments at the end of lines or after the code 
+# including "View" in the script 
 
 #-----data description 2----
 
@@ -154,37 +151,97 @@ describe(DEMS)
 # tallies of the number of observations by facilityno
 xtabs( ~ facilityno, data = DEMS) 
 
+
 ```
 
 # Basic Data Description
 
-Using the `tidyverse` `dplyr` package.
 
-```{r table.with.dplyr}
-#-----table with dplyr------
+```{r table.with.baseR}
+# make dataframes for different facilities
+DEMSa <- filter(DEMS, facilityid == "A")
+DEMSb <- filter(DEMS, facilityid == "B")
+DEMSc <- filter(DEMS, facilityid == "C")
+DEMSd <- filter(DEMS, facilityid == "D")
+DEMSg <- filter(DEMS, facilityid == "D")
+DEMSh <- filter(DEMS, facilityid == "H")
+DEMSi <- filter(DEMS, facilityid == "I")
 
-# create summary dataframe 
-facility_ec <- DEMS %>% 
-  group_by(facilityno) %>% 
-  summarise(N = sum(!is.na(ecdata)),
-            Nmiss = sum(is.na(ecdata)),
-            mean = mean(ecdata, na.rm = TRUE),
-            sd = sd(ecdata, na.rm = TRUE),
-            se = sd/sqrt(N), 
-            .groups = "drop" ) %>% 
-  mutate_if(is.double, round, digits = 2)
+# calculate stats for facility A
+a_N <- dim(DEMSa)[1]
+a_miss <- sum(is.na(DEMSa$ecdata))
+a_mean <- mean(DEMSa$ecdata, na.rm = TRUE)
+a_sd <- sd(DEMSa$ecdata, na.rm = TRUE)
 
-# show tibble
-facility_ec
+# calculate stats for facility B
+b_N <- dim(DEMSb)[1]
+b_miss <- sum(is.na(DEMSb$ecdata))
+b_mean <- mean(DEMSa$ecdata, na.rm = TRUE)
+b_sd <- sd(DEMSb$ecdata, na.rm = TRUE)
 
-# And here is the same result printed using kable
-kable(facility_ec)
+# calculate stats for facility C
+c_N <- dim(DEMSb)[1]
+c_miss <- sum(is.na(DEMSb$ecdata))
+c_mean <- mean(DEMSa$ecdata, na.rm = TRUE)
+c_sd <- sd(DEMSb$ecdata, na.rm = TRUE)
+
+# caluate for facility D
+d_N <- dim(DEMSd)[1]
+d_miss <- sum(is.na(DEMSd$ecdata))
+d_mean <- mean(DEMSd$ecdata, na.rm = TRUE)
+d_sd <- sd(DEMSd$ecdata, na.rm = TRUE)
+
+# calculate stats for facility E
+g_N <- dim(DEMSg)[1]
+g_miss <- sum(is.na(DEMSg$ecdata))
+g_mean <- mean(DEMSg$ecdata, na.rm = TRUE)
+g_sd <- sd(DEMSg$ecdata, na.rm = TRUE)
+
+# calculate stats for facility H
+h_N <- dim(DEMSh)[1]
+h_miss <- sum(is.na(DEMSg$ecdata))
+h_mean <- mean(DEMSg$ecdata, na.rm = TRUE)
+h_sd <- sd(DEMSh$ecdata, na.rm = TRUE)
+
+# calculate stats for facility I
+i_N <- dim(DEMSi)[1]
+i_miss <- sum(is.na(DEMSi$ecdata))
+i_mean <- mean(DEMSi$ecdata, na.rm = TRUE)
+i_sd <- sd(DEMSi$ecdata, na.rm = TRUE)
+
+# you've still got to put this all together?! 
+
+
+### Some of the worst practices this chunk ### 
+# easier to make mistakes when we copy and paste 
+# it is easier to use tidyverse and dplyr packages 
+# using group_by() and summarise() this code is much simpler 
+
 ```
+
+ 
+# Data Inference 
+
+```{r regression.modeling.baseR}
+# linear regression for each model 
+a_mod <- summary(lm(data = DEMSa, ecdata ~ no2data))$coefficients
+b_mod <- summary(lm(data = DEMSb, ecdata ~ no2data))$coefficients
+e_mod <- summary(lm(data = DEMSe, ecdata ~ no2data))$coefficients
+g_mod <- summary(lm(data = DEMSg, ecdata ~ no2data))$coefficients
+h_mod <- summary(lm(data = DEMSh, ecdata ~ no2data))$coefficients
+i_mod <- summary(lm(data = DEMSi, ecdata ~ no2data))$coefficients
+
+### Some of the worst practices this chunk ### 
+# massive subsetting into new variables instead of using group_by
+# using a lot of copy/paste and repetition
+# not using functions or pipelines to reduce copy/paste
+```
+
+ 
 
 ## Data Visualization 
 
 ```{r hist.in.tidyverse}
-# removed warning=FALSE, message=FALSE
 
 #-----hist in tidyverse---------
 # load packages in random places 
@@ -194,11 +251,15 @@ library(ggplot2)
 p <- ggplot(data=DEMS, aes(ecdata, na.rm=TRUE)) + geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth=20) + geom_density(alpha=.2, fill="red") + labs(x = "REC (ug/m3)") +         scale_y_continuous(expand = expand_scale(mult = c(0, .1))) + theme_classic()
 
 p
+
+### Some of the worst practices this chunk ### 
+# using poor code spacing, layout, indentation, etc., making code hard to read
+# loading a package randomly 
+
 ```
 
 ```{r scatterplot.in.tidyverse, echo=TRUE }
-# removed:  warning=FALSE, message=FALSE
-#-----scatterplot in tidyverse------------
+ #-----scatterplot in tidyverse------------
 
 # Plot facets with free scales. 
 # Note 1:  the smoother for facility E is behaving strangely because so many 
@@ -216,9 +277,9 @@ facet_wrap(~ facilityno, nrow = 2, scales = "free")
   scale_color_brewer(palette = "Dark2") +
   theme_bw()
     
-
-# Not following + at beginning of each attribute 
-
+### Some of the worst practices this chunk ### 
+# not following + at beginning of each attribute 
+# ignoring warnings 
 
 ```
 
