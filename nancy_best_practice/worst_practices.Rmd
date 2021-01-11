@@ -45,21 +45,22 @@ library(lubridate)
 #-----set file paths----
 
 # create a variable for the project path
-project_path <- getwd()
+#project_path <- getwd()
 
 # create a variable for the data path
-data_path <- file.path(project_path, "data")
+#data_path <- file.path(project_path, "data")
 
 # create directory, if one does not already exist
-dir.create(data_path, showWarnings = FALSE, recursive = TRUE)
+#dir.create(data_path, showWarnings = FALSE, recursive = TRUE)
 
 ```
 
 ```{r read.data, eval=TRUE}
 #-----read data----
 
-# # Nancy? option to simplify? 
-# DEMS <- readRDS(file.path(data_path, "DEMSCombinedPersonal.rds"))
+# read data instead of loading from url 
+  DEMS <- DEMSCombinedPersonal <- readRDS("~/Coders group/Prep/nancy_best_practice/data/DEMSCombinedPersonal.rds")
+
 
 # first, specify file name and path
 DEMS_file <- "DEMSCombinedPersonal.rds"
@@ -78,7 +79,7 @@ if (file.exists(DEMS_path)) {
 } else warning(paste("Can't find", DEMS_file, "!"))
 
 # remove temporary variables
-rm(url, DEMS_file, DEMS_path)
+#rm(url, DEMS_file, DEMS_path)
 
 ```
 
@@ -117,11 +118,13 @@ names(DEMS)
 # This gives us details on the type of each variable in the dataset
 sapply(DEMS, class) 
 
-```
+# view data
+View(DEMS)
+ 
+### Data Wrangling 
+# large chunk instead separating data descriptions 
 
-# Data Wrangling 
 
-```{r data.description.2}
 #-----data description 2----
 
 # make DEMS a tibble
@@ -180,7 +183,9 @@ kable(facility_ec)
 
 ## Data Visualization 
 
-```{r hist.in.tidyverse, warning=FALSE, message=FALSE}
+```{r hist.in.tidyverse}
+# removed warning=FALSE, message=FALSE
+
 #-----hist in tidyverse---------
 # load packages in random places 
 library(ggplot2)
@@ -191,7 +196,8 @@ p <- ggplot(data=DEMS, aes(ecdata, na.rm=TRUE)) + geom_histogram(aes(y=..density
 p
 ```
 
-```{r scatterplot.in.tidyverse, echo=TRUE, warning=FALSE, message=FALSE}
+```{r scatterplot.in.tidyverse, echo=TRUE }
+# removed:  warning=FALSE, message=FALSE
 #-----scatterplot in tidyverse------------
 
 # Plot facets with free scales. 
@@ -202,7 +208,7 @@ ggplot(data = DEMS, aes(nodata, ecdata, color = u_s)) +
 geom_point() +
 facet_wrap(~ facilityno, nrow = 2, scales = "free") 
 +  geom_smooth(se = FALSE) +  labs(
-    title = "Scatterplot of the DEMS NO (ppm) vs. REC (ug/m3) data \nby facility, colored by measurement location",
+    title = "Scatterplot of the DEMS NO (ppm) vs. REC (ug/m3) data \n by facility, colored by measurement location",
     x = "NO (ppm)",
     y = "REC (ug/m3)",
     color = "Measurement\nlocation"
@@ -211,7 +217,9 @@ facet_wrap(~ facilityno, nrow = 2, scales = "free")
   theme_bw()
     
 
-# Not following + at begining of each attribute 
+# Not following + at beginning of each attribute 
+
+
 ```
 
 # Session Information, Code, and Functions
