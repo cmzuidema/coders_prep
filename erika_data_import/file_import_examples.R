@@ -9,11 +9,11 @@ pacman::p_load(dplyr, tidyr, readxl, ggplot2)
 work_dir <- file.path(getwd(), "erika_data_import")
 setwd(work_dir)
 
-# Define data directory, creating if needed
+# Define data directory, creating if needed 
 data_dir <- file.path(work_dir, "data")
-if (!dir.exists(data_dir)) {
-  dir.create(data_dir, showWarnings = FALSE, recursive = TRUE)
-}
+##if (!dir.exists(data_dir)) {
+ ## dir.create(data_dir, showWarnings = FALSE, recursive = TRUE)
+## }
 
 # name and create output directory
 output_dir <- file.path(work_dir, "output")
@@ -28,7 +28,7 @@ df_names <- tibble(file_names) %>%
   separate(file_names, sep = "_|\\.", 
            into = c("letter", "time", "instrument", "date"), 
            extra = "drop") %>% 
-  mutate(name = paste(letter, instrument, sep = "_"))
+  mutate(name = paste(letter, time, sep = "_"))
 
 # Define functions for extracting metadata
 extract_metadata_sep <- function(path, range, sep = ":") {
@@ -71,35 +71,29 @@ df_list <- lapply(file_names, function(i){
   # read files
   read_xls(fn, skip = 26) %>% 
     select(n = `No.`, time = Time, temp = `Temperature°C`, rh = `Humidity%RH`) %>% 
-    mutate(time = as.POSIXct(time, tz = "US/Pacific"))
-})
+    mutate(time = as.POSIXct(time, tz = "GMT"), 
+           timePST =format(time, tz= "US/Pacific", usetz= TRUE), 
+           timePST= as.POSIXct(timePST, tz= "US/Pacific")) 
+  })
 
 # assign dataframe names (corresponding to metadata)
 names(df_list) <- df_names[["name"]]
 
 
 # create diagnostic plot
-figs <- lapply(names(df_list), function(i){ 
-  
-  # prepare data
-  temp <- df_list[[i]] %>% 
-    pivot_longer(cols = c("temp", "rh"), names_to = "parameter") 
+ 
+# prepare data 
+df<- bind_rows(df_list, .id = "letter") %>% 
+  pivot_longer(cols = c("temp", "rh"), names_to = "parameter") 
     
-    # create plot
-    ggplot(data = temp, aes(x = time, y = value)) + 
+# create plot
+fig <- ggplot(data = df, aes(x = time, y = value, color= letter)) + 
       geom_line() + 
       facet_wrap(~ parameter, ncol = 1, scales = "free_y") +
       theme_bw()
   
-})
-
-# assign figure names
-names(figs) <- df_names[["name"]]
-
 
 # save figures as ".png", ".jpg", or ".pdf" (and more) using lapply and ggsave
 # units can be specified as "in" or "cm"
-lapply(names(figs),function(x){
-  ggsave(filename = file.path(output_dir, paste0(x,".png")), plot=figs[[x]], 
+ggsave(filename = file.path(output_dir,"fig.png"), plot=fig, 
          width = 8, height = 5, units = "in", dpi = "print")
-})
