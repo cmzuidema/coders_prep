@@ -3,15 +3,15 @@
 
 # Load packages, installing if needed
 if (!require(pacman)) install.packages("pacman")
-pacman::p_load(dplyr, tidyr, readxl, ggplot2)
+pacman::p_load(dplyr, tidyr, readxl, ggplot2, lubridate, rstatix, ggpubr)
 
-# set working directory (Erika to modify)
+# set working directory (Will be project file)
 work_dir <- file.path(getwd(), "erika_data_import")
 setwd(work_dir)
 
-# Define data directory, creating if needed 
+# Define data directory, creating if needed
 data_dir <- file.path(work_dir, "data")
-##if (!dir.exists(data_dir)) {
+##(!dir.exists(data_dir)) {
  ## dir.create(data_dir, showWarnings = FALSE, recursive = TRUE)
 ## }
 
@@ -20,9 +20,7 @@ output_dir <- file.path(work_dir, "output")
 dir.create(output_dir, showWarnings = TRUE, recursive = TRUE)
 
 
-# get xls file names 
-# (Erika: do you need any information in the file names? 
-# Modify file names to label dataframes?)
+# get xls file names - Need information from file names 
 file_names <- list.files(path = file.path(data_dir))
 df_names <- tibble(file_names) %>% 
   separate(file_names, sep = "_|\\.", 
@@ -69,31 +67,51 @@ df_list <- lapply(file_names, function(i){
   fn <- file.path(data_dir, i) 
   
   # read files
-  read_xls(fn, skip = 26) %>% 
-    select(n = `No.`, time = Time, temp = `Temperature°C`, rh = `Humidity%RH`) %>% 
-    mutate(time = as.POSIXct(time, tz = "GMT"), 
-           timePST =format(time, tz= "US/Pacific", usetz= TRUE), 
-           timePST= as.POSIXct(timePST, tz= "US/Pacific")) 
-  })
+  read_xls(fn, skip = 26) %>%
+    select(n = `No.`, time = Time, temp = `Temperature°C`, rh = `Humidity%RH`) %>%
+    mutate(time = as.POSIXct(time, tz = "GMT"),
+           timePST = force_tzs(time, tzones = "GMT", tzone_out = "US/Pacific"))
+    
+})
+
 
 # assign dataframe names (corresponding to metadata)
 names(df_list) <- df_names[["name"]]
 
 
 # create diagnostic plot
- 
 # prepare data 
 df<- bind_rows(df_list, .id = "letter") %>% 
-  pivot_longer(cols = c("temp", "rh"), names_to = "parameter") 
-    
+  pivot_longer(cols = c("temp", "rh"), names_to = "parameter")
+ 
 # create plot
-fig <- ggplot(data = df, aes(x = time, y = value, color= letter)) + 
-      geom_line() + 
-      facet_wrap(~ parameter, ncol = 1, scales = "free_y") +
-      theme_bw()
-  
+figure1 <- ggplot(data = df, aes(x = timePST, y = value, color= letter)) + 
+  geom_line() + 
+  facet_wrap(~ parameter, ncol = 1, scales = "free_y") +
+  theme_bw()
 
-# save figures as ".png", ".jpg", or ".pdf" (and more) using lapply and ggsave
+
+#Summary stats for temp + RH for entire experiment
+summary.stats <- df %>%
+  group_by(parameter) %>%
+  get_summary_stats()%>%
+  select(parameter, n, mean, median, iqr)
+
+#making a visual table of summary stats
+sum_table <- ggtexttable(summary.stats, rows = NULL, theme = ttheme("blank")) %>%
+        tab_add_hline(at.row = 1:2, row.side = "top", linewidth = 2)
+
+#Creating combined plot using ggarrange #looks bad but room for improvement!
+figure2 <- ggarrange(fig, sum_table, heights = c(3, 3, 0.3), ncol = 1, nrow = 3)
+
+
+
+# save 2 figures as ".png", ".jpg", or ".pdf" (and more) using lapply and ggsave
 # units can be specified as "in" or "cm"
-ggsave(filename = file.path(output_dir,"fig.png"), plot=fig, 
+ggsave(filename = file.path(output_dir,"fig1.png"), plot=figure1, 
+       width = 8, height = 5, units = "in", dpi = "print")
+
+
+ggsave(filename = file.path(output_dir,"fig2.png"), plot=figure2, 
          width = 8, height = 5, units = "in", dpi = "print")
+
