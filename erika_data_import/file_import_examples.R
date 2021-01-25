@@ -5,9 +5,8 @@
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(dplyr, tidyr, readxl, ggplot2, lubridate, rstatix, ggpubr)
 
-# set working directory (Will be project file)
-work_dir <- file.path(getwd(), "erika_data_import")
-setwd(work_dir)
+# set working directory (will be project file, adjust as needed)
+work_dir <- getwd()
 
 # define data directory
 data_dir <- file.path(work_dir, "data")
