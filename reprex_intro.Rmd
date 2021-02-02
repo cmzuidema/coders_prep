@@ -148,3 +148,36 @@ reprex(input = "reprex_example_file.R")
 
 ```
 
+
+# Capture a `reprex` when helping others
+
+```{r reprex.clean}
+
+# copy a reprex from the wild, then run
+reprex_clean()
+
+```
+
+
+# Get clean code from your console
+
+```{r reprex.rescue}
+
+# copy code from your console, then run
+reprex_rescue()
+
+```
+
+
+# Un-render a `reprex`
+
+```{r reprex.invert}
+
+# first create a `reprex` from a file
+temp <- reprex(input = "reprex_example_file.R", outfile = file.path(tempdir()))
+
+# then invert
+reprex_invert(temp)
+
+```
+
