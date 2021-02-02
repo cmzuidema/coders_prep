@@ -1,0 +1,150 @@
+---
+title: "`reprex` Introduction"
+subtitle: "DEOHS Coders Group"
+author: "Chris Zuidema"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r load.libraries.pacman, echo=FALSE, include=FALSE, eval=TRUE}
+#-----load libraries pacman-----
+
+# Load pacman into memory, installing as needed
+my_repo <- 'http://cran.r-project.org'
+if (!require("pacman")) {install.packages("pacman", repos = my_repo)}
+
+# Load the other packages, installing as needed.
+pacman::p_load(knitr, dplyr, reprex, VCA, palmerpenguins)
+
+```
+
+
+# Getting Help
+
+The `reprex` package is designed to help you get help. We've covered getting
+help in coders group in the past. You can review what we talked about
+[here](https://github.com/deohs/r_onramp/blob/master/r_resources_and_getting_help.md#how-to-ask-for-help).
+Basically, we suggested:
+
+  * Do your homework carefully
+  * Be clear, specific, and thorough
+  * Be respectful and mature
+  * Provide a reproducible example of your problem
+  * Don't expect strangers on the Internet to solve your homework problems for you
+
+Today we're going to focus on "Provide a reproducible example of your problem"
+with the tidyverse `reprex` package.
+
+
+# What is `reprex`?
+
+`reprex` is a package that that makes it convenient to make a *repr*oducible
+*ex*ample with the goal of making code you seek help with:
+
+  * Code that actually runs
+  * Code that the reader does not necessarily have to run
+  * Code that the reader can easily run
+
+
+# Introductory `reprex` Example
+
+Lets say we need help with the following code chunk:
+
+```{r struggle.bus}
+
+# make some awesome factors
+x <- factor("Can")
+y <- factor("I")
+z <- factor("code")
+
+# view them
+x
+y
+z
+
+# combine x & y
+c(x, y, z)
+
+```
+
+This is not what I expected! I was hoping for something more like: 
+
+``` 
+> c(x, y, z)
+
+[1] Can I code
+Levels: Can I code
+
+```
+
+So I need help and I need to send my code somewhere or to someone. The `reprex`
+package helps do this.
+
+
+# Steps to share your code with `reprex`
+
+`reprex` makes it easy to share with others: 
+
+  1. Highlight the code you want to `reprex` 
+  2. Copy the code through shortcuts (Ctrl + C or Cmd + C) or Menu (Edit -> Copy)
+  3. In the Console enter `reprex::reprex()` or just `reprex()` if the package
+     is already loaded 
+  4. `reprex` renders to the Viewer pane and is automatically available on your 
+     clipboard. 
+      * from here you can copy/paste into a document, email, GitHub, etc.
+
+
+Let's practice with another chunk of code that, unlike our first example, fails
+and does not run (as opposed to our first example that ran but gave unexpected
+output).
+
+```{r code.fail}
+
+# # Load pacman, installing as needed
+# if (!require("pacman")) {install.packages("pacman")}
+# 
+# # Load the other packages, installing as needed.
+# pacman::p_load(dplyr, VCA)
+
+df <- dplyr::storms
+
+# visualize data
+varPlot(form = wind  ~ year, Data = df, 
+        VarLab = list(srt = 90) 
+        )
+
+```
+
+
+## Sharing in an email
+
+This is easy! Once the `reprex` is rendered in the viewer, it can just be
+copied/pasted.
+
+
+## Sharing in a GitHub Issue
+
+We'll use our DEOHS [coders group repository](https://github.com/deohs/coders)
+to demonstrate.
+
+Find the "Issues" link, then the "New issue" link. You can paste the `reprex`
+output right in the text box.
+
+From there others can view the code and output or copy/paste it into their own R
+session.
+
+
+# `reprex` a File
+
+You can also `reprex` a whole file:
+
+```{r reprex.file}
+
+reprex(input = "reprex_example_file.R")
+
+```
+
