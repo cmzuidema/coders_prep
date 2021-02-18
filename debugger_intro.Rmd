@@ -1,0 +1,68 @@
+---
+title: "Debugging Introduction"
+subtitle: "DEOHS Coders Group"
+author: "Chris Zuidema"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r load.libraries.pacman, echo=FALSE, include=FALSE, eval=TRUE}
+#-----load libraries pacman-----
+
+# Load pacman into memory, installing as needed
+my_repo <- 'http://cran.r-project.org'
+if (!require("pacman")) {install.packages("pacman", repos = my_repo)}
+
+# Load the other packages, installing as needed.
+pacman::p_load(knitr, dplyr, VCA, palmerpenguins)
+
+```
+
+
+# Resources
+
+  * Advanced R [Debugging Chapter](https://adv-r.hadley.nz/debugging.html)
+  * Helpful RStudio link on [debugging](https://support.rstudio.com/hc/en-us/articles/205612627-Debugging-with-RStudio?fbclid=IwAR0I_dM1hSuO-aRJBDmqbO4pbshhdB6bk8TYA2oVkguYvuEl_TldMQpJH04#entering-debug-mode-stopping)
+
+
+# Debugging Steps
+
+To find your bugs, you need to: 
+
+  1. Run code
+  2. Stop the code at the point where you think the problem is 
+  3. Look at and/or walk through the code, step-by-step at that point.
+
+
+# Breakpoints
+
+Breakpoints stop code from running at a specified line. To enter a breakpoint
+
+Shift+F9
+
+
+
+
+```{r code.fail}
+
+# # Load pacman, installing as needed
+# if (!require("pacman")) {install.packages("pacman")}
+# 
+# # Load the other packages, installing as needed.
+# pacman::p_load(dplyr, VCA)
+
+df <- dplyr::storms
+
+# visualize data
+varPlot(form = wind  ~ year, Data = df, 
+        VarLab = list(srt = 90) 
+        )
+
+```
+
+
+
